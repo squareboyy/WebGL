@@ -1,31 +1,127 @@
 <!DOCTYPE html>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Лабораторна робота №1</title>
+    <link rel="stylesheet" href="style.css" />
 
+    <script src="./Utils/trackball-rotator.js"></script>
+    <script src="./Utils/m4.js"></script>
+    <script src="./shader.gpu"></script>
+    <script src="./model.js"></script>
+    <script src="./main.js"></script>
+  </head>
+  <body onload="init()">
+    <div id="controls">
+      <h2>Налаштування поверхні</h2>
 
-<title>PA#1</title>
-<style>
-    body {
-        background-color: #EEEEEE;
-    }
-</style>
+      <div class="control-group">
+        <label for="colorPicker">Колір каркасу</label>
+        <input type="color" id="colorPicker" value="#FFFF00" />
+      </div>
 
-<script src="./Utils/trackball-rotator.js"></script>
-<script src="./Utils/m4.js"></script>
-<script src="./shader.gpu"></script>
-<script src="./main.js"></script>
+      <div class="control-group">
+        <label for="paramR1">Радіус R1:</label>
+        <div class="slider-container">
+          <input
+            type="range"
+            id="paramR1"
+            min="0.1"
+            max="5"
+            step="0.1"
+            value="1.0"
+          />
+          <input
+            type="number"
+            id="numR1"
+            min="0.1"
+            max="5"
+            step="0.1"
+            value="1.0"
+          />
+        </div>
+      </div>
 
-</head>
-<body onload="init()">
+      <div class="control-group">
+        <label for="paramR2">Радіус R2:</label>
+        <div class="slider-container">
+          <input
+            type="range"
+            id="paramR2"
+            min="0.1"
+            max="5"
+            step="0.1"
+            value="2.0"
+          />
+          <input
+            type="number"
+            id="numR2"
+            min="0.1"
+            max="5"
+            step="0.1"
+            value="2.0"
+          />
+        </div>
+      </div>
 
-<h2>A Cube with "Trackball" Mouse Rotation</h2>
+      <div class="control-group">
+        <label for="paramPhi">Кут φ (f), градуси:</label>
+        <div class="slider-container">
+          <input
+            type="range"
+            id="paramPhi"
+            min="1"
+            max="89"
+            step="1"
+            value="30"
+          />
+          <input
+            type="number"
+            id="numPhi"
+            min="1"
+            max="89"
+            step="1"
+            value="30"
+          />
+        </div>
+      </div>
 
-<p id="message">Drag your mouse on the cube to rotate it.<br>
-(On a touch screen, you can use your finger.)</p>
+      <div class="control-group">
+        <label for="calcC">Обчислена висота c:</label>
+        <input
+          type="number"
+          id="calcC"
+          readonly
+          disabled
+          style="width: 100%; background-color: #333"
+        />
+      </div>
 
+      <div class="control-group">
+        <label for="paramRes">Роздільна здатність:</label>
+        <div class="slider-container">
+          <input
+            type="range"
+            id="paramRes"
+            min="5"
+            max="50"
+            step="1"
+            value="30"
+          />
+          <input
+            type="number"
+            id="numRes"
+            min="5"
+            max="50"
+            step="1"
+            value="30"
+          />
+        </div>
+      </div>
+    </div>
 
-<div id="canvas-holder">
-   <canvas width="600" height="600" id="webglcanvas" style="background-color:red"></canvas>
-</div>
-
-
-</body></html>
+    <div id="canvas-holder">
+      <canvas width="800" height="800" id="webglcanvas"></canvas>
+    </div>
+  </body>
+</html>
