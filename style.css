@@ -66,13 +66,13 @@ body {
 #canvas-holder {
     flex-grow: 1;
     display: flex;
-    justify-content: center;
-    align-items: center;
     overflow: hidden;
     background-color: #121212;
 }
 
 canvas {
     background-color: #000000;
-    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+    display: block;
 }

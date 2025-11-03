@@ -134,7 +134,8 @@ function draw() {
     gl.clearColor(0,0,0,1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
-    let projection = m4.perspective(Math.PI/8, 1, 0.1, 200); 
+    let aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    let projection = m4.perspective(Math.PI/8, aspect, 0.1, 200); 
     let modelView = spaceball.getViewMatrix();
     let modelViewProjection = m4.multiply(projection, modelView );
 
@@ -159,6 +160,7 @@ function initGL() {
 
     surface = new Model('Surface');
     gl.enable(gl.DEPTH_TEST);
+    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 }
 
 
@@ -194,6 +196,8 @@ function init() {
     let canvas;
     try {
         canvas = document.getElementById("webglcanvas");
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
         gl = canvas.getContext("webgl");
         if ( ! gl ) {
             throw "Browser does not support WebGL";
