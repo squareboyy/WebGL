@@ -17,7 +17,7 @@
 
       <div class="control-group">
         <label for="colorPicker">Колір каркасу</label>
-        <input type="color" id="colorPicker" value="#FFFF00" />
+        <input type="color" id="colorPicker" value="#00FF00" />
       </div>
 
       <div class="control-group">
@@ -65,36 +65,11 @@
       </div>
 
       <div class="control-group">
-        <label for="paramPhi">Кут φ (f), градуси:</label>
-        <div class="slider-container">
-          <input
-            type="range"
-            id="paramPhi"
-            min="1"
-            max="89"
-            step="1"
-            value="30"
-          />
-          <input
-            type="number"
-            id="numPhi"
-            min="1"
-            max="89"
-            step="1"
-            value="30"
-          />
-        </div>
-      </div>
-
-      <div class="control-group">
-        <label for="calcC">Обчислена висота c:</label>
-        <input
-          type="number"
-          id="calcC"
-          readonly
-          disabled
-          style="width: 100%; background-color: #333"
-        />
+        <label for="paramFi">Кут (φ):</label>
+        <select id="paramFi" style="width: 100%; padding: 5px">
+          <option value="pi/6">π/6</option>
+          <option value="-pi/6">-π/6</option>
+        </select>
       </div>
 
       <div class="control-group">
