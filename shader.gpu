@@ -1,14 +1,54 @@
-
-
 // Vertex shader
 const vertexShaderSource = `
 attribute vec3 vertex;
+attribute vec3 normal;
+
 uniform mat4 ModelViewProjectionMatrix;
+uniform mat4 ModelViewMatrix;
+uniform mat4 NormalMatrix;
+
+uniform vec3 LightPosition;
+uniform vec3 AmbientProduct, DiffuseProduct, SpecularProduct;
+uniform float Shininess;
+
+varying vec4 vColor;
 
 void main() {
-    gl_Position = ModelViewProjectionMatrix * vec4(vertex,1.0);
-}`;
+    // Transform vertex position to eye coordinates
+    vec3 pos = (ModelViewMatrix * vec4(vertex, 1.0)).xyz;
+    
+    // Transform vertex normal to eye coordinates
+    vec3 N = normalize((NormalMatrix * vec4(normal, 0.0)).xyz);
+    
+    // Vector to the light source
+    vec3 L = normalize(LightPosition - pos);
+    
+    // Vector to the viewer (assuming viewer is at 0,0,0 in eye coords, or using global direction 0,0,1)
+    vec3 E = normalize(-pos); 
+    // Hint suggests using (0,0,1) for simplified viewer direction, let's use calculated E for better accuracy, 
+    // or vec3(0.0, 0.0, 1.0) as per hint. Let's stick to calculated E for correct perspective specular.
+    
+    // Calculate halfway vector for Blinn-Phong or Reflection for Phong
+    vec3 H = normalize(L + E);
 
+    // Compute terms
+    vec3 ambient = AmbientProduct;
+
+    float Kd = max(dot(L, N), 0.0);
+    vec3 diffuse = Kd * DiffuseProduct;
+
+    float Ks = pow(max(dot(N, H), 0.0), Shininess);
+    vec3 specular = Ks * SpecularProduct;
+    
+    if(dot(L, N) < 0.0) {
+        specular = vec3(0.0, 0.0, 0.0);
+    }
+
+    vec4 lightColor = vec4(ambient + diffuse + specular, 1.0);
+    
+    gl_Position = ModelViewProjectionMatrix * vec4(vertex, 1.0);
+    vColor = lightColor;
+}`;
 
 // Fragment shader
 const fragmentShaderSource = `
@@ -18,7 +58,8 @@ const fragmentShaderSource = `
    precision mediump float;
 #endif
 
-uniform vec4 color;
+varying vec4 vColor;
+
 void main() {
-    gl_FragColor = color;
+    gl_FragColor = vColor;
 }`;
