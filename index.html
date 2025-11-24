@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>Лабораторна робота №1</title>
+    <title>VGGI</title>
     <link rel="stylesheet" href="style.css" />
 
     <script src="./Utils/trackball-rotator.js"></script>
@@ -16,82 +16,72 @@
       <h2>Налаштування поверхні</h2>
 
       <div class="control-group">
-        <label for="colorPicker">Колір каркасу</label>
-        <input type="color" id="colorPicker" value="#00FF00" />
+        <label
+          style="display: inline-flex; align-items: center; cursor: pointer"
+        >
+          <input
+            type="checkbox"
+            id="chkWireframe"
+            style="width: 20px; height: 20px; margin-right: 10px"
+          />
+          Лінійний каркас
+        </label>
       </div>
 
       <div class="control-group">
         <label for="paramR1">Радіус R1:</label>
-        <div class="slider-container">
-          <input
-            type="range"
-            id="paramR1"
-            min="0.1"
-            max="5"
-            step="0.1"
-            value="1.0"
-          />
-          <input
-            type="number"
-            id="numR1"
-            min="0.1"
-            max="5"
-            step="0.1"
-            value="1.0"
-          />
-        </div>
+        <input
+          type="range"
+          id="paramR1"
+          min="0.1"
+          max="5"
+          step="0.1"
+          value="1.0"
+        />
       </div>
 
       <div class="control-group">
         <label for="paramR2">Радіус R2:</label>
-        <div class="slider-container">
-          <input
-            type="range"
-            id="paramR2"
-            min="0.1"
-            max="5"
-            step="0.1"
-            value="2.0"
-          />
-          <input
-            type="number"
-            id="numR2"
-            min="0.1"
-            max="5"
-            step="0.1"
-            value="2.0"
-          />
-        </div>
+        <input
+          type="range"
+          id="paramR2"
+          min="0.1"
+          max="5"
+          step="0.1"
+          value="2.0"
+        />
       </div>
 
       <div class="control-group">
-        <label for="paramFi">Кут (φ):</label>
-        <select id="paramFi" style="width: 100%; padding: 5px">
+        <label for="paramFi">Кут fi:</label>
+        <select id="paramFi" style="width: 100%">
           <option value="pi/6">π/6</option>
           <option value="-pi/6">-π/6</option>
         </select>
       </div>
 
       <div class="control-group">
-        <label for="paramRes">Роздільна здатність:</label>
-        <div class="slider-container">
-          <input
-            type="range"
-            id="paramRes"
-            min="5"
-            max="50"
-            step="1"
-            value="30"
-          />
-          <input
-            type="number"
-            id="numRes"
-            min="5"
-            max="50"
-            step="1"
-            value="30"
-          />
-        </div>
+        <label for="paramResU">Гранулярність U:</label>
+        <input
+          type="range"
+          id="paramResU"
+          min="5"
+          max="100"
+          step="1"
+          value="30"
+        />
+      </div>
+
+      <div class="control-group">
+        <label for="paramResV">Гранулярність V:</label>
+        <input
+          type="range"
+          id="paramResV"
+          min="5"
+          max="100"
+          step="1"
+          value="30"
+        />
       </div>
     </div>
 
