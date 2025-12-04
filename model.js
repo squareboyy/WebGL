@@ -140,7 +140,7 @@ function calcSurfacePoint(u, v, params) {
         nx /= len; ny /= len; nz /= len;
     }
     
-    // Нормалізація Дотичної (Tangent)
+    // Нормалізація Дотичної
     let lenT = Math.sqrt(tx_u*tx_u + ty_u*ty_u + tz_u*tz_u);
     let txn = tx_u, tyn = ty_u, tzn = tz_u;
     if(lenT > 0.00001) {
@@ -150,8 +150,8 @@ function calcSurfacePoint(u, v, params) {
     return {
         p: [x, y, z_centered],
         n: [nx, ny, nz],
-        t: [txn, tyn, tzn], // Передаємо дотичну
-        uv: [u / (2 * Math.PI), v / b] // Текстурні координати (0..1)
+        t: [txn, tyn, tzn],
+        uv: [u / (2 * Math.PI), v / b]
     };
 }
 
