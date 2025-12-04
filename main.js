@@ -58,7 +58,6 @@ function draw() {
     let projection = m4.perspective(Math.PI/8, gl.canvas.clientWidth / gl.canvas.clientHeight, 0.1, 200); 
     let modelView = spaceball.getViewMatrix(); 
 
-    // Світло
     lightAngle += 0.01; 
     let lightRadius = 7.5;
     let lightPosWorld = [lightRadius * Math.sin(lightAngle), 7.5, lightRadius * Math.cos(lightAngle)];
@@ -66,7 +65,6 @@ function draw() {
     let viewMatrixOnly = m4.translation(0, 0, -g_viewDistance);
     let lightPosEye = m4.transformPoint(viewMatrixOnly, lightPosWorld);
 
-    // Поверхня
     let modelViewProjection = m4.multiply(projection, modelView);
     let normalMatrix = m4.inverse(modelView);
     normalMatrix = m4.transpose(normalMatrix);
@@ -160,11 +158,11 @@ function regenerateSurface() {
     
     if (!surface) surface = new Model('Surface');
     surface.BufferData(data.verticesF32, data.normalsF32, data.tangentsF32, data.texCoordsF32, data.indicesTriU16, data.indicesLinesU16);
-
+    
     if (surface.idTextureDiffuse === -1) {
-        surface.idTextureDiffuse = LoadTexture("https://webglfundamentals.org/webgl/resources/f-texture.png"); 
-        surface.idTextureSpecular = LoadTexture("https://webglfundamentals.org/webgl/resources/keyboard.jpg");
-        surface.idTextureNormal = LoadTexture("https://upload.wikimedia.org/wikipedia/commons/3/3f/Bumpy_surface.jpg");
+        surface.idTextureDiffuse = LoadTexture("./textures/diff.jpg"); 
+        surface.idTextureSpecular = LoadTexture("./textures/spec.jpg");
+        surface.idTextureNormal = LoadTexture("./textures/norm.jpg");
     }
 }
 
