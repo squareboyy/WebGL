@@ -27,6 +27,19 @@ let g_surfaceParams = {
     v_steps: 30
 };
 
+// --- Helper function for dynamic logic ---
+// Автоматично інвертує кут fi, якщо R1 < R2, щоб виправити геометрію та рух
+function getEffectiveParams() {
+    // Створюємо копію параметрів, щоб не змінювати UI
+    let params = { ...g_surfaceParams };
+    
+    // Ваше спостереження: якщо R1 < R2, зміна знаку кута виправляє проблему
+    if (params.R1 < params.R2) {
+        params.fi = -params.fi;
+    }
+    return params;
+}
+
 function ShaderProgram(name, program) {
     this.name = name;
     this.prog = program;
@@ -75,8 +88,10 @@ function draw() {
 
     let currentPivot = [0, 0, 0];
 
+    // Використовуємо ефективні параметри для розрахунку точки
     if (g_pivotMode === 'surface') {
-        let pointData = calcSurfacePoint(g_pivotUV.u, g_pivotUV.v, g_surfaceParams);
+        let effParams = getEffectiveParams();
+        let pointData = calcSurfacePoint(g_pivotUV.u, g_pivotUV.v, effParams);
         currentPivot = pointData.p;
     } else {
         currentPivot = [g_pivotCustom.x, g_pivotCustom.y, g_pivotCustom.z];
@@ -210,7 +225,8 @@ function initGL() {
 
 function regenerateSurface() {
     let data = {};
-    CreateSurfaceData(data, g_surfaceParams);
+    let effParams = getEffectiveParams();
+    CreateSurfaceData(data, effParams);
     
     if (!surface) surface = new Model('Surface');
     surface.BufferData(data.verticesF32, data.normalsF32, data.tangentsF32, data.texCoordsF32, data.indicesTriU16, data.indicesLinesU16);
@@ -221,7 +237,7 @@ function regenerateSurface() {
         surface.idTextureNormal = LoadTexture("./textures/norm.jpg");
     }
 
-    const { R1, R2, fi } = g_surfaceParams;
+    const { R1, R2, fi } = effParams;
     const a = R2 - R1;
     let tanFi = Math.tan(fi);
     if (Math.abs(tanFi) < 1e-6) tanFi = 1e-6;
@@ -230,7 +246,6 @@ function regenerateSurface() {
     
     if (g_pivotUV.u === 0 && g_pivotUV.v === 0) {
         g_pivotUV.u = Math.PI;
-        // Використовуємо Math.abs(b), щоб початкова точка завжди була на поверхні
         g_pivotUV.v = Math.abs(b) / 2;
     }
 }
@@ -280,14 +295,16 @@ function init() {
     window.addEventListener("keydown", function(e) {
         if (g_pivotMode !== 'surface') return;
 
-        const { R1, R2, fi } = g_surfaceParams;
+        // Використовуємо ефективні параметри для розрахунку кроку та меж
+        const effParams = getEffectiveParams();
+        const { R1, R2, fi } = effParams;
+        
         const a = R2 - R1;
         let tanFi = Math.tan(fi);
         if (Math.abs(tanFi) < 1e-6) tanFi = 1e-6;
         const c = (-2 * Math.PI * a) / tanFi;
         const b = (3 * c) / 4;
 
-        // Використовуємо абсолютне значення b для розрахунку діапазону v
         const uMax = 2 * Math.PI;
         const vMax = Math.abs(b);
         
