@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>VGGI</title>
+    <title>Laboratory Work 4</title>
     <link rel="stylesheet" href="style.css" />
 
     <script src="./Utils/trackball-rotator.js"></script>
@@ -43,6 +43,8 @@
         </label>
       </div>
 
+      <hr style="border-color: #444; margin: 15px 0" />
+
       <div class="control-group">
         <label for="paramR1">R1:</label>
         <input
@@ -51,7 +53,7 @@
           min="0.1"
           max="5"
           step="0.1"
-          value="1.0"
+          value="3.0"
         />
       </div>
 
@@ -75,6 +77,8 @@
         </select>
       </div>
 
+      <hr style="border-color: #444; margin: 15px 0" />
+
       <div class="control-group">
         <label for="paramResU">Granularity U:</label>
         <input
@@ -97,6 +101,71 @@
           step="1"
           value="30"
         />
+      </div>
+
+      <hr style="border-color: #444; margin: 15px 0" />
+
+      <div class="control-group">
+        <label for="paramRotation">Rotation:</label>
+        <input
+          type="range"
+          id="paramRotation"
+          min="0"
+          max="360"
+          step="1"
+          value="0"
+        />
+
+        <div class="control-group">
+          <label><input type="radio" name="rotAxis" value="x" /> X Axis</label>
+          <label
+            ><input type="radio" name="rotAxis" value="y" checked /> Y
+            Axis</label
+          >
+          <label><input type="radio" name="rotAxis" value="z" /> Z Axis</label>
+        </div>
+
+        <label>Pivot Source:</label>
+
+        <div class="control-group">
+          <label>
+            <input type="radio" name="pivotSource" value="surface" checked />
+            Surface Point (WASD)
+          </label>
+        </div>
+
+        <div class="control-group">
+          <label>
+            <input type="radio" name="pivotSource" value="custom" />
+            Custom (X, Y, Z)
+          </label>
+          <div class="control-group">
+            <span style="font-size: 0.9em">X</span>
+            <input
+              type="number"
+              id="pivotX"
+              value="0"
+              step="0.1"
+              style="width: 50px"
+            />
+            <span style="font-size: 0.9em">Y</span>
+            <input
+              type="number"
+              id="pivotY"
+              value="0"
+              step="0.1"
+              style="width: 50px"
+            />
+            <span style="font-size: 0.9em">Z</span>
+            <input
+              type="number"
+              id="pivotZ"
+              value="0"
+              step="0.1"
+              style="width: 50px"
+            />
+          </div>
+        </div>
       </div>
     </div>
 
