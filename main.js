@@ -27,13 +27,9 @@ let g_surfaceParams = {
     v_steps: 30
 };
 
-// --- Helper function for dynamic logic ---
-// Автоматично інвертує кут fi, якщо R1 < R2, щоб виправити геометрію та рух
 function getEffectiveParams() {
-    // Створюємо копію параметрів, щоб не змінювати UI
     let params = { ...g_surfaceParams };
     
-    // Ваше спостереження: якщо R1 < R2, зміна знаку кута виправляє проблему
     if (params.R1 < params.R2) {
         params.fi = -params.fi;
     }
@@ -88,7 +84,6 @@ function draw() {
 
     let currentPivot = [0, 0, 0];
 
-    // Використовуємо ефективні параметри для розрахунку точки
     if (g_pivotMode === 'surface') {
         let effParams = getEffectiveParams();
         let pointData = calcSurfacePoint(g_pivotUV.u, g_pivotUV.v, effParams);
@@ -295,7 +290,6 @@ function init() {
     window.addEventListener("keydown", function(e) {
         if (g_pivotMode !== 'surface') return;
 
-        // Використовуємо ефективні параметри для розрахунку кроку та меж
         const effParams = getEffectiveParams();
         const { R1, R2, fi } = effParams;
         
