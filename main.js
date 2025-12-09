@@ -3,16 +3,24 @@
 let gl;
 let surface;
 let lightModel;
+let pivotModel; 
 let shProgram;
 let spaceball;
 
 let g_viewDistance = 15;
 let g_drawWireframe = false;
-let lightAngle = 0;
 let g_useTextures = true;
+let lightAngle = 0;
+
+let g_objRotation = 0;
+let g_rotAxis = 'y';
+
+let g_pivotMode = 'surface'; 
+let g_pivotUV = { u: 0, v: 0 };
+let g_pivotCustom = { x: 0, y: 0, z: 0 };
 
 let g_surfaceParams = {
-    R1: 1.0,
+    R1: 3.0,
     R2: 2.0,
     fi: Math.PI / 6, 
     u_steps: 30,
@@ -65,12 +73,39 @@ function draw() {
     let viewMatrixOnly = m4.translation(0, 0, -g_viewDistance);
     let lightPosEye = m4.transformPoint(viewMatrixOnly, lightPosWorld);
 
-    let modelViewProjection = m4.multiply(projection, modelView);
-    let normalMatrix = m4.inverse(modelView);
+    let currentPivot = [0, 0, 0];
+
+    if (g_pivotMode === 'surface') {
+        let pointData = calcSurfacePoint(g_pivotUV.u, g_pivotUV.v, g_surfaceParams);
+        currentPivot = pointData.p;
+    } else {
+        currentPivot = [g_pivotCustom.x, g_pivotCustom.y, g_pivotCustom.z];
+    }
+
+    let translateToOrigin = m4.translation(-currentPivot[0], -currentPivot[1], -currentPivot[2]);
+    
+    let rad = g_objRotation * Math.PI / 180;
+    let rotateObj;
+    if (g_rotAxis === 'x') {
+        rotateObj = m4.xRotation(rad);
+    } else if (g_rotAxis === 'y') {
+        rotateObj = m4.yRotation(rad);
+    } else {
+        rotateObj = m4.zRotation(rad);
+    }
+
+    let translateBack = m4.translation(currentPivot[0], currentPivot[1], currentPivot[2]);
+    
+    let objectTransform = m4.multiply(translateBack, m4.multiply(rotateObj, translateToOrigin));
+    
+    let finalModelView = m4.multiply(modelView, objectTransform);
+
+    let modelViewProjection = m4.multiply(projection, finalModelView);
+    let normalMatrix = m4.inverse(finalModelView);
     normalMatrix = m4.transpose(normalMatrix);
 
     gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, modelViewProjection);
-    gl.uniformMatrix4fv(shProgram.iModelViewMatrix, false, modelView);
+    gl.uniformMatrix4fv(shProgram.iModelViewMatrix, false, finalModelView);
     gl.uniformMatrix4fv(shProgram.iNormalMatrix, false, normalMatrix);
 
     gl.uniform3fv(shProgram.iLightPosition, lightPosEye);
@@ -110,7 +145,24 @@ function draw() {
     gl.uniform1i(shProgram.iUseNormal, 0);
 
     lightModel.Draw(false); 
+
+    let pivotMatrix = m4.translation(currentPivot[0], currentPivot[1], currentPivot[2]);
+    let pivotMV = m4.multiply(modelView, pivotMatrix); 
     
+    let pivotMVP = m4.multiply(projection, pivotMV);
+    let pivotNM = m4.inverse(pivotMV);
+    pivotNM = m4.transpose(pivotNM);
+
+    gl.uniformMatrix4fv(shProgram.iModelViewProjectionMatrix, false, pivotMVP);
+    gl.uniformMatrix4fv(shProgram.iModelViewMatrix, false, pivotMV);
+    gl.uniformMatrix4fv(shProgram.iNormalMatrix, false, pivotNM);
+
+    gl.uniform3fv(shProgram.iAmbientProduct,  [0.0, 1.0, 0.0]); 
+    gl.uniform3fv(shProgram.iDiffuseProduct,  [0.0, 0.0, 0.0]);
+    gl.uniform3fv(shProgram.iSpecularProduct, [0.0, 0.0, 0.0]);
+
+    pivotModel.Draw(false);
+
     requestAnimationFrame(draw);
 }
 
@@ -146,8 +198,12 @@ function initGL() {
     regenerateSurface();
 
     lightModel = new Model("Light");
-    let sphereData = CreateSphereData(0.5); 
+    let sphereData = CreateSphereData(0.2); 
     lightModel.BufferData(sphereData.verticesF32, sphereData.normalsF32, sphereData.tangentsF32, sphereData.texCoordsF32, sphereData.indicesTriU16, null);
+
+    pivotModel = new Model("Pivot");
+    let pivotData = CreateSphereData(0.05); 
+    pivotModel.BufferData(pivotData.verticesF32, pivotData.normalsF32, pivotData.tangentsF32, pivotData.texCoordsF32, pivotData.indicesTriU16, null);
 
     gl.enable(gl.DEPTH_TEST);
 }
@@ -158,11 +214,24 @@ function regenerateSurface() {
     
     if (!surface) surface = new Model('Surface');
     surface.BufferData(data.verticesF32, data.normalsF32, data.tangentsF32, data.texCoordsF32, data.indicesTriU16, data.indicesLinesU16);
-    
+
     if (surface.idTextureDiffuse === -1) {
         surface.idTextureDiffuse = LoadTexture("./textures/diff.jpg"); 
         surface.idTextureSpecular = LoadTexture("./textures/spec.jpg");
         surface.idTextureNormal = LoadTexture("./textures/norm.jpg");
+    }
+
+    const { R1, R2, fi } = g_surfaceParams;
+    const a = R2 - R1;
+    let tanFi = Math.tan(fi);
+    if (Math.abs(tanFi) < 1e-6) tanFi = 1e-6;
+    const c = (-2 * Math.PI * a) / tanFi;
+    const b = (3 * c) / 4;
+    
+    if (g_pivotUV.u === 0 && g_pivotUV.v === 0) {
+        g_pivotUV.u = Math.PI;
+        // Використовуємо Math.abs(b), щоб початкова точка завжди була на поверхні
+        g_pivotUV.v = Math.abs(b) / 2;
     }
 }
 
@@ -208,6 +277,41 @@ function init() {
 
     spaceball = new TrackballRotator(canvas, function(){}, g_viewDistance);
 
+    window.addEventListener("keydown", function(e) {
+        if (g_pivotMode !== 'surface') return;
+
+        const { R1, R2, fi } = g_surfaceParams;
+        const a = R2 - R1;
+        let tanFi = Math.tan(fi);
+        if (Math.abs(tanFi) < 1e-6) tanFi = 1e-6;
+        const c = (-2 * Math.PI * a) / tanFi;
+        const b = (3 * c) / 4;
+
+        // Використовуємо абсолютне значення b для розрахунку діапазону v
+        const uMax = 2 * Math.PI;
+        const vMax = Math.abs(b);
+        
+        const stepU = uMax / 50; 
+        const stepV = vMax / 50;
+
+        switch(e.key.toLowerCase()) {
+            case 'a': 
+                g_pivotUV.u -= stepU; 
+                if (g_pivotUV.u < 0) g_pivotUV.u += uMax; 
+                break;
+            case 'd': 
+                g_pivotUV.u += stepU; 
+                if (g_pivotUV.u > uMax) g_pivotUV.u -= uMax; 
+                break;
+            case 's': 
+                g_pivotUV.v = Math.max(0, g_pivotUV.v - stepV); 
+                break;
+            case 'w': 
+                g_pivotUV.v = Math.min(vMax, g_pivotUV.v + stepV); 
+                break;
+        }
+    });
+
     canvas.addEventListener("wheel", function(evt) {
         evt.preventDefault();
         let scale = (evt.deltaY < 0) ? 0.9 : 1.1;
@@ -223,6 +327,31 @@ function init() {
     document.getElementById("chkTextures").addEventListener("change", (e) => { 
         g_useTextures = e.target.checked; 
     });
+
+    document.getElementById("paramRotation").addEventListener("input", (e) => {
+        g_objRotation = parseFloat(e.target.value);
+    });
+
+    document.querySelectorAll('input[name="rotAxis"]').forEach((elem) => {
+        elem.addEventListener("change", function(event) {
+            g_rotAxis = event.target.value;
+        });
+    });
+
+    document.querySelectorAll('input[name="pivotSource"]').forEach((elem) => {
+        elem.addEventListener("change", function(event) {
+            g_pivotMode = event.target.value;
+        });
+    });
+
+    function updateCustomPivot() {
+        g_pivotCustom.x = parseFloat(document.getElementById("pivotX").value);
+        g_pivotCustom.y = parseFloat(document.getElementById("pivotY").value);
+        g_pivotCustom.z = parseFloat(document.getElementById("pivotZ").value);
+    }
+    document.getElementById("pivotX").addEventListener("input", updateCustomPivot);
+    document.getElementById("pivotY").addEventListener("input", updateCustomPivot);
+    document.getElementById("pivotZ").addEventListener("input", updateCustomPivot);
 
     function setupSlider(id, paramKey) {
         let el = document.getElementById(id);
