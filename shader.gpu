@@ -9,6 +9,7 @@ uniform mat4 ModelViewProjectionMatrix;
 uniform mat4 ModelViewMatrix;
 uniform mat4 NormalMatrix;
 uniform vec3 LightPosition;
+uniform mat3 uTextureMatrix; // Матриця трансформації текстур
 
 varying vec3 vPos;
 varying vec3 vLightPos;
@@ -18,16 +19,19 @@ varying mat3 vTBN;
 void main() {
     vec4 pos4 = ModelViewMatrix * vec4(vertex, 1.0);
     vPos = pos4.xyz;
-    vTexCoord = texCoord;
+    
+    // Застосування матриці трансформації до текстурних координат
+    // Перетворення відбувається у 2D просторі (u, v)
+    vec3 texCoord3 = uTextureMatrix * vec3(texCoord, 1.0);
+    vTexCoord = texCoord3.xy;
+    
     vLightPos = LightPosition;
 
     vec3 N = normalize((NormalMatrix * vec4(normal, 0.0)).xyz);
     vec3 T = normalize((NormalMatrix * vec4(tangent, 0.0)).xyz);
-    
     // Gram-Schmidt orthogonalization
     T = normalize(T - N * dot(T, N));
     vec3 B = cross(N, T);
-    
     vTBN = mat3(T, B, N);
 
     gl_Position = ModelViewProjectionMatrix * vec4(vertex, 1.0);
@@ -45,7 +49,6 @@ uniform sampler2D iTMU0; // Diffuse Texture
 uniform sampler2D iTMU1; // Specular Texture
 uniform sampler2D iTMU2; // Normal Map
 uniform float Shininess;
-
 uniform vec3 AmbientProduct;
 uniform vec3 DiffuseProduct;
 uniform vec3 SpecularProduct;
@@ -71,7 +74,7 @@ void main() {
     }
     normalMap = normalize(normalMap * 2.0 - 1.0);
     vec3 N = normalize(vTBN * normalMap);
-    
+
     // 2. Lighting Vectors
     vec3 L = normalize(vLightPos - vPos);
     vec3 E = normalize(-vPos);
